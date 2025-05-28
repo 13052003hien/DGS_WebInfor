@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-scroll';
+import digitalTransform from '../assets/digital-transform.png';
 
 const Hero = () => {
   return (
@@ -33,7 +34,7 @@ const Hero = () => {
             className="hidden md:block"
           >
             <img
-              src="/assets/digital-transform.svg"
+              src={digitalTransform}
               alt="Digital Transformation"
               className="w-full max-w-lg mx-auto"
             />

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-scroll';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes } from 'react-icons/fa';
+import logo from '../assets/logo.png';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,9 +33,9 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <img 
-              src="/assets/logo.png" 
+              src={logo}
               alt="DigiSER Logo" 
-              className="h-12"
+              className="w-24 h-auto object-contain"
             />
           </div>
 
