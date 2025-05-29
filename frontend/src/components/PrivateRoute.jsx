@@ -1,10 +1,16 @@
-import { Navigate } from 'react-router-dom';
-import { getCurrentUser } from '../services/auth.service';
+import { Navigate, useLocation } from 'react-router-dom';
+import { isAuthenticated } from '../services/auth.service';
 
 const PrivateRoute = ({ children }) => {
-    const user = getCurrentUser();
+    const location = useLocation();
+    const authenticated = isAuthenticated();
     
-    return user ? children : <Navigate to="/login" />;
+    if (!authenticated) {
+        // Redirect to login page with return url
+        return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    return children;
 };
 
 export default PrivateRoute;

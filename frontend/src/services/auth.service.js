@@ -2,28 +2,70 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:3000/api/users';
 
-export const register = async (username, email, password, fullName) => {
-    const response = await axios.post(`${API_URL}/register`, {
-        username,
-        email,
-        password,
-        fullName
-    });
-    if (response.data.token) {
-        localStorage.setItem('user', JSON.stringify(response.data));
+// Create axios instance
+const api = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json'
     }
-    return response.data;
+});
+
+// Add a request interceptor to inject the JWT token
+api.interceptors.request.use(
+    (config) => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.token) {
+            config.headers.Authorization = `Bearer ${user.token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Add a response interceptor to handle token expiration
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        if (error.response?.status === 401) {
+            logout(); // Token expired or invalid
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
+export const register = async (username, email, password, fullName) => {
+    try {
+        const response = await api.post('/register', {
+            username,
+            email,
+            password,
+            fullName
+        });
+        if (response.data.token) {
+            localStorage.setItem('user', JSON.stringify(response.data));
+        }
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
 
 export const login = async (username, password) => {
-    const response = await axios.post(`${API_URL}/login`, {
-        username,
-        password
-    });
-    if (response.data.token) {
-        localStorage.setItem('user', JSON.stringify(response.data));
+    try {
+        const response = await api.post('/login', {
+            username,
+            password
+        });
+        if (response.data.token) {
+            localStorage.setItem('user', JSON.stringify(response.data));
+        }
+        return response.data;
+    } catch (error) {
+        throw error;
     }
-    return response.data;
 };
 
 export const logout = () => {
@@ -31,15 +73,39 @@ export const logout = () => {
 };
 
 export const getCurrentUser = () => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) return JSON.parse(userStr);
-    return null;
+    try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            return JSON.parse(userStr);
+        }
+        return null;
+    } catch (error) {
+        console.error('Error parsing user data:', error);
+        return null;
+    }
 };
 
 export const updateProfile = async (userData) => {
-    const user = getCurrentUser();
-    const response = await axios.put(`${API_URL}/profile`, userData, {
-        headers: { Authorization: `Bearer ${user.token}` }
-    });
-    return response.data;
+    try {
+        const response = await api.put('/profile', userData);
+        const currentUser = getCurrentUser();
+        const updatedUser = { ...currentUser, ...response.data };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
+
+export const isAuthenticated = () => {
+    const user = getCurrentUser();
+    return user && user.token ? true : false;
+};
+
+export const isAdmin = () => {
+    const user = getCurrentUser();
+    return user && user.role === 'admin';
+};
+
+// Export the axios instance for other services to use
+export const apiClient = api;

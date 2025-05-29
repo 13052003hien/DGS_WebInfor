@@ -1,5 +1,5 @@
 const User = require('../models/user.model');
-const jwt = require('jsonwebtoken');
+const { generateToken } = require('../config/jwt');
 const userService = require('../services/user.service');
 
 // Register new user
@@ -20,10 +20,9 @@ const register = async (req, res) => {
             password,
             fullName
         });
-
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key', {
-            expiresIn: '1d'
-        });
+        
+        // Generate JWT token
+        const token = generateToken(user._id, user.role);
 
         res.status(201).json({
             _id: user._id,
@@ -48,9 +47,8 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key', {
-            expiresIn: '1d'
-        });
+        // Generate JWT token
+        const token = generateToken(user._id, user.role);
 
         res.json({
             _id: user._id,
@@ -69,6 +67,9 @@ const login = async (req, res) => {
 const getProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
         res.json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -102,14 +103,57 @@ const updateProfile = async (req, res) => {
     }
 };
 
-exports.getAllUsers = (req, res) => {
-  const users = userService.getAll();
-  res.json(users);
+// Create admin user
+const createAdmin = async (req, res) => {
+    try {
+        const { username, email, password, fullName } = req.body;
+
+        // Check if user already exists
+        const userExists = await User.findOne({ $or: [{ email }, { username }] });
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        // Create new admin user
+        const user = await User.create({
+            username,
+            email,
+            password,
+            fullName,
+            role: 'admin'
+        });
+
+        // Generate JWT token
+        const token = generateToken(user._id, user.role);
+
+        res.status(201).json({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            fullName: user.fullName,
+            role: user.role,
+            token
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Get all users
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await userService.getAllUsers();
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
 module.exports = {
     register,
     login,
     getProfile,
-    updateProfile
+    updateProfile,
+    createAdmin,
+    getAllUsers
 };

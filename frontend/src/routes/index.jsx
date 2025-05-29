@@ -3,28 +3,47 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import Home from '../pages/Home';
+import Admin from '../pages/Admin';
 import PrivateRoute from '../components/PrivateRoute';
+import AdminRoute from '../components/AdminRoute';
+import ErrorBoundary from '../components/ErrorBoundary';
+import Layout from '../components/Layout';
 
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <Home />,
-    },
-    {
-        path: '/profile',
-        element: (
-            <PrivateRoute>
-                <Profile />
-            </PrivateRoute>
-        ),
-    },
-    {
-        path: '/login',
-        element: <Login />,
-    },
-    {
-        path: '/register',
-        element: <Register />,
+        element: <Layout />,
+        errorElement: <ErrorBoundary />,
+        children: [
+            {
+                index: true,
+                element: <Home />,
+            },
+            {
+                path: 'profile',
+                element: (
+                    <PrivateRoute>
+                        <Profile />
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: 'admin',
+                element: (
+                    <AdminRoute>
+                        <Admin />
+                    </AdminRoute>
+                ),
+            },
+            {
+                path: 'login',
+                element: <Login />,
+            },
+            {
+                path: 'register',
+                element: <Register />,
+            },
+        ],
     },
 ]);
 
