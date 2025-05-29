@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 
 const Toast = ({ message, type = 'success', onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000); // 3 seconds
+
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
   return (
     <div className={`fixed top-4 right-4 z-50 flex items-center p-4 mb-4 rounded-lg shadow ${
       type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'

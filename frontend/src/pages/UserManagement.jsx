@@ -17,14 +17,19 @@ const UserManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [formData, setFormData] = useState({
-    name: "",
+
+  // Reset về trang 1 khi tìm kiếm
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+  const [currentUser, setCurrentUser] = useState(null);  const [formData, setFormData] = useState({
+    fullName: "",
     email: "",
+    username: "", // Add username field
     role: "User",
     status: "Hoạt động",
     password: "", // Chỉ yêu cầu khi tạo mới
-  });  const [currentPage, setCurrentPage] = useState(1);
+  });const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [toast, setToast] = useState({ show: false, message: "", type: "success" });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,35 +63,74 @@ const UserManagement = () => {
     } finally {
       setIsLoading(false);
     }
+  };  const validateForm = () => {
+    const errors = [];
+    if (!formData.fullName || formData.fullName.trim().length < 2) {
+      errors.push("Tên người dùng phải có ít nhất 2 ký tự");
+    }
+    if (!formData.username || formData.username.trim().length < 3) {
+      errors.push("Tên đăng nhập phải có ít nhất 3 ký tự");
+    }
+    if (!formData.email || !formData.email.includes('@')) {
+      errors.push("Email không hợp lệ");
+    }
+    if (!currentUser && (!formData.password || formData.password.length < 6)) {
+      errors.push("Mật khẩu phải có ít nhất 6 ký tự");
+    }
+    return errors;
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = validateForm();
+    
+    if (errors.length > 0) {
+      setToast({
+        show: true,
+        message: errors[0],
+        type: "error"
+      });
+      return;
+    }
+
     try {
-      setIsSubmitting(true);
-      if (currentUser) {
-        await userService.updateUser(currentUser._id, formData);
+      setIsSubmitting(true);      if (currentUser) {
+        const response = await userService.updateUser(currentUser._id, formData);
+        // Update was successful if we get here
         setToast({
           show: true,
           message: "Cập nhật người dùng thành công",
           type: "success"
         });
-      } else {
-        await userService.createUser(formData);
+        fetchUsers();
+        setShowModal(false);
+        resetForm();} else {
+        const response = await userService.createUser(formData);
+        // User creation was successful if we get here
         setToast({
           show: true,
           message: "Thêm người dùng mới thành công",
           type: "success"
         });
-      }
-      fetchUsers();
-      setShowModal(false);
-      resetForm();
-    } catch (err) {
+        fetchUsers();
+        setShowModal(false);
+        resetForm();
+      }    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || "Có lỗi xảy ra";
+      console.error('Error in user operation:', err);
       setToast({
         show: true,
-        message: err.response?.data?.message || "Có lỗi xảy ra",
+        message: errorMessage,
         type: "error"
       });
+      
+      // Specific error handling
+      if (errorMessage.includes('email') || errorMessage.includes('Email')) {
+        setFormData(prev => ({...prev, email: ''}));
+      }
+      if (errorMessage.includes('password') || errorMessage.includes('mật khẩu')) {
+        setFormData(prev => ({...prev, password: ''}));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -96,6 +140,7 @@ const UserManagement = () => {
     setFormData({
       fullName: user.fullName,
       email: user.email,
+      username: user.username,
       role: user.role || 'User',
       status: user.status || 'Hoạt động',
     });
@@ -128,19 +173,24 @@ const UserManagement = () => {
     setFormData({
       fullName: "",
       email: "",
+      username: "",
       role: "User",
       status: "Hoạt động",
       password: "",
     });
   };
-
-  // Pagination
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;  const filteredUsers = users.filter((user) =>
+  // Tìm kiếm người dùng trên toàn bộ dữ liệu
+  const filteredUsers = users.filter((user) =>
     (user.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (user.role || '').toLowerCase().includes(searchTerm.toLowerCase())
+    (user.username || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.role || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.status || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Phân trang sau khi đã tìm kiếm
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   return (
@@ -170,10 +220,12 @@ const UserManagement = () => {
           <div className="relative w-64">
             <input
               type="text"
-              placeholder="Tìm kiếm người dùng..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
+              placeholder="Tìm kiếm người dùng..."              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset trang về 1 khi người dùng gõ
+              }}
             />
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
@@ -320,11 +372,9 @@ const UserManagement = () => {
             </nav>
           </div>
         </div>
-      </div>
-
-      {/* Modal for add/edit user */}
+      </div>      {/* Modal for add/edit user */}
       {showModal && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
+        <div className="fixed z-50 inset-0 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div className="fixed inset-0 transition-opacity">
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -337,8 +387,21 @@ const UserManagement = () => {
                       Tên người dùng
                     </label>
                     <input
-                      type="text"                      value={formData.fullName}
+                      type="text"
+                      value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Tên đăng nhập
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.username}
+                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       required
                     />
