@@ -21,14 +21,21 @@ const Login = () => {
         });
         // Clear error when user starts typing
         if (error) setError('');
-    };
-
-    const handleSubmit = async (e) => {
+    };    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
 
-        try {            const user = await login(formData.username, formData.password);
+        try {
+            console.log('Attempting login with:', {
+                username: formData.username,
+                timestamp: new Date().toISOString()
+            });
+            const user = await login(formData.username, formData.password);
+            console.log('Login successful:', {
+                role: user.role,
+                timestamp: new Date().toISOString()
+            });
             // If user is admin, redirect to admin dashboard, otherwise go to the previous page or home
             const redirectTo = user.role === 'admin' ? '/admin' : from;
             navigate(redirectTo, { replace: true });

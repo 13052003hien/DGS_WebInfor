@@ -23,11 +23,15 @@ const userSchema = new mongoose.Schema({
     fullName: {
         type: String,
         required: true
-    },
-    role: {
+    },    role: {
         type: String,
         enum: ['user', 'admin'],
         default: 'user'
+    },
+    status: {
+        type: String,
+        enum: ['Hoạt động', 'Tạm khóa'],
+        default: 'Hoạt động'
     },
     createdAt: {
         type: Date,

@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:3000/api/users';
+import { API_URL, ENDPOINTS } from '../config/api.config';
 
 // Create axios instance
 const api = axios.create({
@@ -38,7 +37,7 @@ api.interceptors.response.use(
 
 export const register = async (username, email, password, fullName) => {
     try {
-        const response = await api.post('/register', {
+        const response = await api.post(ENDPOINTS.AUTH.REGISTER, {
             username,
             email,
             password,
@@ -55,7 +54,7 @@ export const register = async (username, email, password, fullName) => {
 
 export const login = async (username, password) => {
     try {
-        const response = await api.post('/login', {
+        const response = await api.post(ENDPOINTS.AUTH.LOGIN, {
             username,
             password
         });
@@ -87,7 +86,7 @@ export const getCurrentUser = () => {
 
 export const updateProfile = async (userData) => {
     try {
-        const response = await api.put('/profile', userData);
+        const response = await api.put(ENDPOINTS.AUTH.PROFILE, userData);
         const currentUser = getCurrentUser();
         const updatedUser = { ...currentUser, ...response.data };
         localStorage.setItem('user', JSON.stringify(updatedUser));

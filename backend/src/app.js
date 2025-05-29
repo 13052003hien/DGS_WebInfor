@@ -11,7 +11,11 @@ const app = express();
 connectDB();
 
 app.use(logger('dev'));
-app.use(cors());
+// Configure CORS
+app.use(cors({
+    origin: 'http://localhost:5173', // Vite default port
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

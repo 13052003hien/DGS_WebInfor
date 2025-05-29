@@ -28,12 +28,36 @@ class UserService {
 
     async updateUser(userId, updateData) {
         try {
-            const user = await User.findByIdAndUpdate(
-                userId,
-                { $set: updateData },
-                { new: true }
-            ).select('-password');
-            return user;
+            const user = await User.findById(userId);
+            if (!user) {
+                throw new Error('User not found');
+            }
+
+            user.username = updateData.username || user.username;
+            user.email = updateData.email || user.email;
+            user.fullName = updateData.name || user.fullName;
+            user.role = updateData.role || user.role;
+            user.status = updateData.status || user.status;
+
+            if (updateData.password) {
+                user.password = updateData.password;
+            }
+
+            await user.save();
+            return user.toObject();
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteUser(id) {
+        try {
+            const user = await User.findById(id);
+            if (!user) {
+                throw new Error('User not found');
+            }
+            await user.deleteOne();
+            return { message: 'User deleted successfully' };
         } catch (error) {
             throw error;
         }
