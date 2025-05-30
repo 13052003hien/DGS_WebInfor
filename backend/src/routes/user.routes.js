@@ -10,6 +10,7 @@ router.post('/login', userController.login);
 // Protected routes (require authentication)
 router.get('/profile', protect, userController.getProfile);
 router.put('/profile', protect, userController.updateProfile);
+router.post('/refresh-token', protect, userController.refreshToken);
 
 // Admin routes (require authentication and admin role)
 router.get('/', protect, admin, userController.getAllUsers);

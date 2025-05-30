@@ -27,9 +27,38 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response?.status === 401) {
-            logout(); // Token expired or invalid
-            window.location.href = '/login';
+        const originalRequest = error.config;
+        
+        // If the error is 401 and we haven't tried to refresh yet
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            
+            try {
+                // Try to refresh the token
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (user && user.token) {
+                    const response = await api.post(ENDPOINTS.AUTH.REFRESH_TOKEN);
+                    if (response.data.token) {
+                        // Update the token in localStorage
+                        localStorage.setItem('user', JSON.stringify({
+                            ...user,
+                            token: response.data.token
+                        }));
+                        
+                        // Update the Authorization header
+                        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+                        originalRequest.headers['Authorization'] = `Bearer ${response.data.token}`;
+                        
+                        // Retry the original request
+                        return api(originalRequest);
+                    }
+                }
+            } catch (refreshError) {
+                // If refresh token fails, logout user
+                logout();
+                window.location.href = '/login';
+                return Promise.reject(refreshError);
+            }
         }
         return Promise.reject(error);
     }

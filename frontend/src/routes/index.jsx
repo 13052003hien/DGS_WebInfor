@@ -4,6 +4,12 @@ import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import Home from '../pages/Home';
 import Admin from '../pages/Admin';
+import ProjectManagement from '../components/projects/ProjectManagement';
+import LocationManagement from '../components/locations/LocationManagement';
+import ContactManagement from '../components/contacts/ContactManagement';
+import UserManagement from '../pages/UserManagement';
+import Dashboard from '../components/Dashboard';
+import Settings from '../components/Settings';
 import PrivateRoute from '../components/PrivateRoute';
 import AdminRoute from '../components/AdminRoute';
 import ErrorBoundary from '../components/ErrorBoundary';
@@ -34,6 +40,32 @@ const router = createBrowserRouter([
                         <Admin />
                     </AdminRoute>
                 ),
+                children: [
+                    {
+                        index: true,
+                        element: <Dashboard />
+                    },
+                    {
+                        path: 'users',
+                        element: <UserManagement />
+                    },
+                    {
+                        path: 'projects',
+                        element: <ProjectManagement />
+                    },
+                    {
+                        path: 'locations',
+                        element: <LocationManagement />
+                    },
+                    {
+                        path: 'contacts',
+                        element: <ContactManagement />
+                    },
+                    {
+                        path: 'settings',
+                        element: <Settings />
+                    }
+                ]
             },
             {
                 path: 'login',

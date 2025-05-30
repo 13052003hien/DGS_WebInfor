@@ -47,7 +47,12 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Generate JWT token
+        // Check if user is active
+        if (user.status === 'Tạm khóa') {
+            return res.status(403).json({ message: 'Your account has been suspended' });
+        }
+
+        // Generate JWT token with user role
         const token = generateToken(user._id, user.role);
 
         res.json({
@@ -56,6 +61,7 @@ const login = async (req, res) => {
             email: user.email,
             fullName: user.fullName,
             role: user.role,
+            status: user.status,
             token
         });
     } catch (error) {
@@ -221,6 +227,19 @@ const deleteUserById = async (req, res) => {
     }
 };
 
+// Refresh token
+const refreshToken = async (req, res) => {
+    try {
+        // User already verified in protect middleware
+        const user = req.user;
+        const token = generateToken(user._id);
+        
+        res.json({ token });
+    } catch (error) {
+        res.status(500).json({ message: 'Error refreshing token' });
+    }
+};
+
 module.exports = {
     register,
     login,
@@ -231,5 +250,6 @@ module.exports = {
     getUserById,
     createUser,
     updateUserById,
-    deleteUserById
+    deleteUserById,
+    refreshToken
 };

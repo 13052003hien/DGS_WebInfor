@@ -1,5 +1,5 @@
 const User = require('../models/user.model');
-const { verifyToken } = require('../config/jwt');
+const { verifyToken, generateToken } = require('../config/jwt');
 
 // Protect routes middleware
 const protect = async (req, res, next) => {
@@ -14,18 +14,39 @@ const protect = async (req, res, next) => {
             return res.status(401).json({ message: 'Not authorized, no token' });
         }
 
-        // Verify token
-        const decoded = verifyToken(token);
+        try {
+            // Verify token
+            const decoded = verifyToken(token);
 
-        // Get user from token
-        const user = await User.findById(decoded.id).select('-password');
-        if (!user) {
-            return res.status(401).json({ message: 'Not authorized, user not found' });
+            // Get user from token with role information
+            const user = await User.findById(decoded.id).select('-password');
+            if (!user) {
+                return res.status(401).json({ message: 'Not authorized, user not found' });
+            }
+
+            // Check if token is about to expire (within 5 minutes)
+            const tokenExp = decoded.exp * 1000; // Convert to milliseconds
+            const now = Date.now();
+            const fiveMinutes = 5 * 60 * 1000;
+
+            if (tokenExp - now < fiveMinutes) {
+                // Generate new token
+                const newToken = generateToken(user._id, user.role);
+                res.setHeader('X-New-Token', newToken);
+            }
+
+            // Add user to request
+            req.user = user;
+            next();
+        } catch (error) {
+            if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({ 
+                    message: 'Token expired',
+                    code: 'TOKEN_EXPIRED'
+                });
+            }
+            throw error;
         }
-
-        // Add user to request
-        req.user = user;
-        next();
     } catch (error) {
         res.status(401).json({ message: 'Not authorized, token failed' });
     }
@@ -33,10 +54,13 @@ const protect = async (req, res, next) => {
 
 // Admin check middleware
 const admin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
+    if (req.user && req.user.role === 'admin') { // Sửa thành chữ thường
         next();
     } else {
-        res.status(403).json({ message: 'Not authorized as admin' });
+        res.status(403).json({ 
+            message: 'Not authorized as admin',
+            userRole: req.user ? req.user.role : 'none' // Thêm thông tin để debug
+        });
     }
 };
 
