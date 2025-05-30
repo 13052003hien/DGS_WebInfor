@@ -54,6 +54,7 @@ export const ENDPOINTS = {
         GET_BY_ID: (id) => `/users/${id}`,
         UPDATE: (id) => `/users/${id}`,
         DELETE: (id) => `/users/${id}`,
+        UPLOAD_AVATAR: '/users/avatar'
     },
     PROJECTS: {
         BASE: '/projects',

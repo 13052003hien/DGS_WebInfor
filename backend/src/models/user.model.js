@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6
     },
+    imageUrl: {
+        type: String,
+        default: '' // Default empty string if no image is uploaded
+    },
     fullName: {
         type: String,
         required: true

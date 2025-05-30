@@ -25,6 +25,28 @@ class ProjectService {
         const response = await api.delete(ENDPOINTS.PROJECTS.DELETE(id));
         return response.data;
     }
+
+    async uploadProjectImages(projectId, formData) {
+        try {
+            const response = await api.post(`/api/projects/${projectId}/images`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
+    }
+
+    async deleteProjectImage(projectId, imageId) {
+        try {
+            const response = await api.delete(`/api/projects/${projectId}/images/${imageId}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
+    }
 }
 
 export default new ProjectService();

@@ -61,10 +61,27 @@ const deleteUser = async (id) => {
   return response.data;
 };
 
-export const userService = {
+const uploadAvatar = async (formData) => {
+  try {
+    const response = await apiClient.post(ENDPOINTS.USERS.UPLOAD_AVATAR, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to upload avatar:', error);
+    throw error.response?.data || error.message;
+  }
+};
+
+const userService = {
   getUsers,
   getUserById,
   createUser,
   updateUser,
   deleteUser,
+  uploadAvatar,
 };
+
+export { userService };

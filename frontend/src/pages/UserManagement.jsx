@@ -281,11 +281,22 @@ const UserManagement = () => {
               <tr key={user._id}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                      <FaUsers className="text-gray-500" />
+                    <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
+                      {user.imageUrl ? (
+                        <img 
+                          src={user.imageUrl} 
+                          alt={user.fullName}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center bg-blue-600 text-white text-sm font-medium">
+                          {user.fullName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                     </div>
                     <div className="ml-4">
                       <div className="text-sm font-medium text-gray-900">{user.fullName}</div>
+                      <div className="text-sm text-gray-500">{user.username}</div>
                     </div>
                   </div>
                 </td>

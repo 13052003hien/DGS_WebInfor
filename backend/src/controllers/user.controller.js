@@ -1,6 +1,7 @@
 const User = require('../models/user.model');
 const { generateToken } = require('../config/jwt');
 const userService = require('../services/user.service');
+const { cloudinary } = require('../config/cloudinary');
 
 // Register new user
 const register = async (req, res) => {
@@ -11,9 +12,7 @@ const register = async (req, res) => {
         const userExists = await User.findOne({ $or: [{ email }, { username }] });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
-        }
-
-        // Create new user
+        }        // Create new user
         const user = await User.create({
             username,
             email,
@@ -30,6 +29,7 @@ const register = async (req, res) => {
             email: user.email,
             fullName: user.fullName,
             role: user.role,
+            imageUrl: user.imageUrl,
             token
         });
     } catch (error) {
@@ -53,15 +53,14 @@ const login = async (req, res) => {
         }
 
         // Generate JWT token with user role
-        const token = generateToken(user._id, user.role);
-
-        res.json({
+        const token = generateToken(user._id, user.role);        res.json({
             _id: user._id,
             username: user.username,
             email: user.email,
             fullName: user.fullName,
             role: user.role,
             status: user.status,
+            imageUrl: user.imageUrl, // Thêm trường imageUrl vào response
             token
         });
     } catch (error) {
@@ -82,27 +81,64 @@ const getProfile = async (req, res) => {
     }
 };
 
-// Update user profile
-const updateProfile = async (req, res) => {
+// Upload avatar
+const uploadAvatar = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
-        if (!user) {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const userToUpdate = await User.findById(req.user._id);
+        if (!userToUpdate) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        user.email = req.body.email || user.email;
-        user.fullName = req.body.fullName || user.fullName;
-        if (req.body.password) {
-            user.password = req.body.password;
+        // If user already has an image, delete it from Cloudinary
+        if (userToUpdate.imageUrl) {
+            // Extract public_id from the URL
+            const public_id = userToUpdate.imageUrl.split('/').pop().split('.')[0];
+            if (public_id) {
+                await cloudinary.uploader.destroy(public_id);
+            }
         }
 
-        const updatedUser = await user.save();
+        // Update user with new image URL
+        userToUpdate.imageUrl = req.file.path;
+        await userToUpdate.save();
+
         res.json({
-            _id: updatedUser._id,
-            username: updatedUser.username,
-            email: updatedUser.email,
-            fullName: updatedUser.fullName,
-            role: updatedUser.role
+            message: 'Avatar uploaded successfully',
+            imageUrl: userToUpdate.imageUrl
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Update user profile
+const updateProfile = async (req, res) => {
+    try {
+        const { fullName, email } = req.body;
+        const userToUpdate = await User.findById(req.user._id);
+
+        if (!userToUpdate) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (fullName) userToUpdate.fullName = fullName;
+        if (email) userToUpdate.email = email;
+
+        await userToUpdate.save();
+
+        res.json({
+            message: 'Profile updated successfully',
+            user: {
+                _id: userToUpdate._id,
+                username: userToUpdate.username,
+                email: userToUpdate.email,
+                fullName: userToUpdate.fullName,
+                avatar: userToUpdate.avatar
+            }
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -251,5 +287,6 @@ module.exports = {
     createUser,
     updateUserById,
     deleteUserById,
-    refreshToken
+    refreshToken,
+    uploadAvatar
 };
