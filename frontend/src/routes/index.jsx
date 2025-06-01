@@ -4,6 +4,7 @@ import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import Home from '../pages/Home';
 import Admin from '../pages/Admin';
+import About from '../pages/About';
 import ProjectDetail from '../pages/ProjectDetail';
 import ProjectsPage from '../pages/ProjectsPage';
 import ProjectManagement from '../components/projects/ProjectManagement';
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
             {
                 index: true,
                 element: <Home />,
+            },
+            {
+                path: 'about',
+                element: <About />,
             },
             {
                 path: 'profile',
