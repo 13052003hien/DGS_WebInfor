@@ -159,7 +159,7 @@ const ProjectDetail = () => {
                   Thông tin liên hệ
                 </h3>
                 <div className="space-y-6">
-                  {project.location && (
+                  {/* {project.location && (
                     <div className="flex items-start gap-3">
                       <FaMapMarkerAlt className="text-blue-600 mt-1" />
                       <div>
@@ -167,7 +167,7 @@ const ProjectDetail = () => {
                         <p className="text-gray-600">{project.location.name}</p>
                       </div>
                     </div>
-                  )}
+                  )} */}
                   
                   {project.salary && (
                     <div className="flex items-start gap-3">
@@ -205,11 +205,20 @@ const ProjectDetail = () => {
                       )}
                       
                       {project.contact.phone && (
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 mb-3">
                           <FaPhone className="text-blue-600" />
                           <a href={`tel:${project.contact.phone}`} className="text-gray-600 hover:text-blue-600 transition-colors">
                             {project.contact.phone}
                           </a>
+                        </div>
+                      )}
+
+                      {project.contact.address && (
+                        <div className="flex items-center gap-3">
+                          <FaMapMarkerAlt className="text-blue-600" />
+                          <span className="text-gray-600">
+                            {project.contact.address}
+                          </span>
                         </div>
                       )}
                     </div>

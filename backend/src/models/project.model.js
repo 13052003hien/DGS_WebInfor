@@ -32,11 +32,20 @@ const projectSchema = new mongoose.Schema({
     projectDetails: {
         type: String,
         required: true
-    },
-    createdAt: {
+    },    createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    images: [{
+        url: {
+            type: String,
+            required: true
+        },
+        public_id: {
+            type: String,
+            required: true
+        }
+    }]
 }, {
     timestamps: true
 });

@@ -24,11 +24,9 @@ class ProjectService {
     async deleteProject(id) {
         const response = await api.delete(ENDPOINTS.PROJECTS.DELETE(id));
         return response.data;
-    }
-
-    async uploadProjectImages(projectId, formData) {
+    }    async uploadProjectImages(projectId, formData) {
         try {
-            const response = await api.post(`/api/projects/${projectId}/images`, formData, {
+            const response = await api.post(`projects/${projectId}/images`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
