@@ -4,6 +4,7 @@ import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import Home from '../pages/Home';
 import Admin from '../pages/Admin';
+import ProjectDetail from '../pages/ProjectDetail';
 import ProjectManagement from '../components/projects/ProjectManagement';
 import LocationManagement from '../components/locations/LocationManagement';
 import ContactManagement from '../components/contacts/ContactManagement';
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
             {
                 path: 'register',
                 element: <Register />,
+            },
+            {
+                path: 'projects/:id',
+                element: <ProjectDetail />,
             },
         ],
     },

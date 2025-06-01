@@ -1,27 +1,40 @@
 import { motion } from 'framer-motion';
-
-const projects = [
-  {
-    title: 'Số hóa hồ sơ hộ tịch Nam Định',
-    date: 'Tháng 12/24',
-    description: 'Chuyển đổi số và quản lý dữ liệu hộ tịch tại Nam Định',
-    image: '/assets/project1.jpg'
-  },
-  {
-    title: 'Văn bản hành chính Hải Dương',
-    date: 'Tháng 02/25',
-    description: 'Số hóa văn bản hành chính tại Hải Dương',
-    image: '/assets/project2.jpg'
-  },
-  {
-    title: 'Dự án địa chính Vĩnh Phúc',
-    date: 'Tháng 01/25',
-    description: 'Quản lý và số hóa dữ liệu địa chính tại Vĩnh Phúc',
-    image: '/assets/project3.jpg'
-  }
-];
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import projectService from '../services/project.service';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
 const Projects = () => {
+  const navigate = useNavigate();
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await projectService.getAllProjects();
+        setProjects(data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="py-20 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="py-20 bg-white" id="projects">
       <div className="container mx-auto px-4">
@@ -49,23 +62,30 @@ const Projects = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
-            >
-              <div className="relative h-48">
+            >              <div className="relative h-48">
                 <img
-                  src={project.image}
-                  alt={project.title}
+                  src={project.images?.[0]?.url || '/assets/placeholder-project.jpg'}
+                  alt={project.projectName}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm">
-                  {project.date}
+                  {format(new Date(project.createdAt), 'MM/yyyy', { locale: vi })}
                 </div>
               </div>
               <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
-                <p className="text-gray-600">{project.description}</p>
-                <button className="mt-4 text-blue-600 font-medium hover:text-blue-800 transition-colors duration-300">
-                  Xem chi tiết →
-                </button>
+                <h3 className="text-xl font-semibold mb-2">{project.projectName}</h3>
+                <p className="text-gray-600 line-clamp-2">{project.projectDetails}</p>
+                <div className="mt-4 flex justify-between items-center">
+                  <span className="text-sm text-gray-500">{project.projectType}</span>                  <span 
+                    onClick={() => navigate(`/projects/${project._id}`)}
+                    className="text-blue-600 font-medium hover:text-blue-800 transition-colors duration-300 cursor-pointer"
+                  >
+                    Xem chi tiết →
+                  </span>
+                </div>
+                <div className="mt-2 text-sm text-gray-500">
+                  <span className="font-medium">Địa điểm:</span> {project.specificLocation}
+                </div>
               </div>
             </motion.div>
           ))}
