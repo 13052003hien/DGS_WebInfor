@@ -1,18 +1,21 @@
-import { motion } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
-import Projects from '../components/Projects';
-import { useEffect } from 'react';
+import { motion } from "framer-motion";
+import { Helmet } from "react-helmet-async";
+import Projects from "../components/Projects";
+import { useEffect } from "react";
 
 const ProjectsPage = () => {
   return (
     <>
       <Helmet>
         <title>Dự án - DGS</title>
-        <meta name="description" content="Danh sách các dự án chuyển đổi số của DGS" />
+        <meta
+          name="description"
+          content="Danh sách các dự án chuyển đổi số của DGS"
+        />
       </Helmet>
 
       {/* Hero Section */}
-      <motion.section 
+      <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
