@@ -3,11 +3,10 @@ import { Link } from 'react-scroll';
 import digitalTransform from '../assets/digital-transform.png';
 
 const Hero = () => {
-  return (
-    <div className="bg-gradient-to-b from-blue-900 to-blue-700 text-white min-h-[90vh] relative overflow-hidden">
+  return (    <div className="bg-gradient-to-b from-blue-900 to-blue-700 text-white min-h-screen relative overflow-hidden pt-20">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,...')] opacity-10"></div>
       <div className="container mx-auto px-6 h-full">
-        <div className="grid md:grid-cols-2 gap-12 items-center h-full py-20">
+        <div className="grid md:grid-cols-2 gap-12 items-center min-h-[calc(100vh-5rem)] py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
