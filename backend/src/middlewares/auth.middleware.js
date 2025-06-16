@@ -24,13 +24,12 @@ const protect = async (req, res, next) => {
                 return res.status(401).json({ message: 'Not authorized, user not found' });
             }
 
-            // Check if token is about to expire (within 5 minutes)
-            const tokenExp = decoded.exp * 1000; // Convert to milliseconds
+            
+            const tokenExp = decoded.exp * 1000; 
             const now = Date.now();
             const fiveMinutes = 5 * 60 * 1000;
 
             if (tokenExp - now < fiveMinutes) {
-                // Generate new token
                 const newToken = generateToken(user._id, user.role);
                 res.setHeader('X-New-Token', newToken);
             }
