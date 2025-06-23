@@ -80,10 +80,10 @@ const Projects = ({ isHomePage }) => {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Dự án tiêu biểu
+              Dự án 
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Các dự án chuyển đổi số mới nhất
+              Các dự án mới nhất
             </p>
           </motion.div>
         ) : (
