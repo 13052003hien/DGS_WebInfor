@@ -1,7 +1,8 @@
 const User = require('../models/user.model');
-const { generateToken } = require('../config/jwt');
 const userService = require('../services/user.service');
-const { cloudinary } = require('../config/cloudinary');
+const { generateToken } = require('../config/jwt');
+const cloudinary = require('cloudinary').v2;
+const { AppError } = require('../middlewares/error.middleware');
 
 // Register new user
 const register = async (req, res) => {
@@ -204,24 +205,24 @@ const getUserById = async (req, res) => {
     }
 };
 
-// Create a new user (for admin)
+// Create user (admin only)
 const createUser = async (req, res) => {
     try {
-        const { username, email, password, fullName, role, status } = req.body;
+        const { username, email, password, fullName, role } = req.body;
 
         // Check if user already exists
-        const userExists = await userService.findByUsername(username);
+        const userExists = await User.findOne({ $or: [{ email }, { username }] });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const user = await userService.createUser({
+        // Create new user with specified role (default to 'user' if not specified)
+        const user = await User.create({
             username,
             email,
             password,
             fullName,
-            role: role || 'user',
-            status: status || 'Hoạt động'
+            role: role || 'user'
         });
 
         res.status(201).json({
@@ -230,7 +231,7 @@ const createUser = async (req, res) => {
             email: user.email,
             fullName: user.fullName,
             role: user.role,
-            status: user.status
+            imageUrl: user.imageUrl
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

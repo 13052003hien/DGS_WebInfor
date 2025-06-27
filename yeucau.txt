@@ -1,0 +1,31 @@
+chức năng cho hệ thống web admin upload file Excel lương, cho phép user tra cứu lương bằng Gmail đã đăng ký:
+
+1. Chức năng cho Admin
+
+Giao diện đơn giản cho Admin upload file Excel (.xlsx/.csv) chứa:
+Mã CTV
+Họ tên
+Email
+Số điện thoại
+Tổng tiền
+Ghi chú
+Sau khi upload:
+Tự động phân tích và lưu vào database.
+Xử lý dữ liệu trùng, dữ liệu thiếu hoặc lỗi định dạng.
+
+2. Chức năng cho User tra cứu
+Sau khi đăng nhập, user có thể thấy:
+Họ tên
+Email
+Tổng tiền lương (có định dạng rõ ràng: 10.200 đ → 10,200 VNĐ)
+Ghi chú (nếu có)
+
+3. Thống kê và lọc (Admin Dashboard)
+Tổng số cộng tác viên
+Tổng chi lương theo tháng
+Lọc theo tên, email, mã, mức lương, khoảng tiền,...
+
+4. Lưu trữ lịch sử lương theo tháng (nâng cao)
+Cho phép admin upload nhiều file cho các tháng khác nhau
+Người dùng có thể xem lịch sử lương của từng tháng
+

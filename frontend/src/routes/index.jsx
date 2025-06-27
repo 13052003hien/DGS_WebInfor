@@ -17,6 +17,7 @@ import PrivateRoute from '../components/PrivateRoute';
 import AdminRoute from '../components/AdminRoute';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Layout from '../components/Layout';
+import SalaryManagement from '../components/salary/SalaryManagement';
 
 const router = createBrowserRouter([
     {
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
                     {
                         path: 'contacts',
                         element: <ContactManagement />
+                    },
+                    {
+                        path: 'salaries',
+                        element: <SalaryManagement />
                     },
                     {
                         path: 'settings',

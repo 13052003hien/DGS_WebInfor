@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { getCurrentUser, updateProfile } from "../services/auth.service";
 import { userService } from "../services/user.service";
 import Toast from "../components/Toast";
+import UserSalary from "../components/salary/UserSalary";
 
 const Profile = () => {
   const [user, setUser] = useState(getCurrentUser());
@@ -223,6 +224,11 @@ const Profile = () => {
             </div>
           </form>
         </div>
+      </div>
+
+      {/* Salary Information */}
+      <div className="mt-8">
+        <UserSalary />
       </div>
     </div>
   );

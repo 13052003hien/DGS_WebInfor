@@ -1,25 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/user.controller');
+const { 
+    register, 
+    login, 
+    getProfile, 
+    updateProfile,
+    uploadAvatar,
+    getAllUsers,
+    getUserById,
+    createUser,
+    updateUserById,
+    deleteUserById
+} = require('../controllers/user.controller');
 const { protect, admin } = require('../middlewares/auth.middleware');
-const { handleUpload } = require('../middlewares/upload.middleware');
+const { handleAvatarUpload } = require('../middlewares/upload.middleware');
 
 // Public routes
-router.post('/register', userController.register);
-router.post('/login', userController.login);
+router.post('/register', register);
+router.post('/login', login);
 
 // Protected routes (require authentication)
-router.get('/profile', protect, userController.getProfile);
-router.put('/profile', protect, userController.updateProfile);
-router.post('/avatar', protect, handleUpload, userController.uploadAvatar);
-router.post('/refresh-token', protect, userController.refreshToken);
+router.get('/profile', protect, getProfile);
+router.put('/profile', protect, updateProfile);
+router.post('/avatar', protect, handleAvatarUpload, uploadAvatar);
 
 // Admin routes (require authentication and admin role)
-router.get('/', protect, admin, userController.getAllUsers);
-router.get('/:id', protect, admin, userController.getUserById);
-router.post('/create', protect, admin, userController.createUser);
-router.put('/:id', protect, admin, userController.updateUserById);
-router.delete('/:id', protect, admin, userController.deleteUserById);
-router.post('/create-admin', protect, admin, userController.createAdmin);
+router.get('/', protect, admin, getAllUsers);
+router.get('/:id', protect, admin, getUserById);
+router.post('/create', protect, admin, createUser);
+router.put('/:id', protect, admin, updateUserById);
+router.delete('/:id', protect, admin, deleteUserById);
 
 module.exports = router;

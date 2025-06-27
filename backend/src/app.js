@@ -7,6 +7,7 @@ const userRoutes = require('./routes/user.routes');
 const projectRoutes = require('./routes/project.routes');
 const locationRoutes = require('./routes/location.routes');
 const contactRoutes = require('./routes/contact.routes');
+const salaryRoutes = require('./routes/salary.routes');
 
 const app = express();
 
@@ -18,9 +19,10 @@ app.use(logger('dev'));
 
 // CORS configuration with more options
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // Allow both localhost and IP
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'], // Allow both localhost and IP
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Content-Length', 'X-Requested-With', 'Authorization'],
     credentials: true,
     maxAge: 86400 // Cache preflight requests for 24 hours
 }));
@@ -36,11 +38,21 @@ app.use((req, res, next) => {
     next();
 });
 
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    console.log('Files:', req.files || req.file);
+    next();
+});
+
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/contacts', contactRoutes);
+app.use('/api/salary', salaryRoutes);
 
 // Handle 404
 app.use((req, res) => {
