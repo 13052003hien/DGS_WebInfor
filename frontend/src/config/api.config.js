@@ -79,5 +79,12 @@ export const ENDPOINTS = {
         CREATE: '/contacts',
         UPDATE: (id) => `/contacts/${id}`,
         DELETE: (id) => `/contacts/${id}`,
+    },
+    SALARY: {
+        BASE: '/salary',
+        GET_ALL: '/salary/all',
+        GET_MY_SALARY: '/salary/my-salary',
+        UPLOAD: '/salary/upload',
+        STATS: '/salary/stats'
     }
 };

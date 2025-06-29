@@ -35,22 +35,17 @@ exports.uploadSalary = async (req, res, next) => {
         return res.status(500).json({ 
             success: false,
             message: 'Lỗi khi xử lý file lương',
-            error: error.message,
-            details: error.stack
+            error: error.message
         });
     }
 };
 
 exports.getSalaries = async (req, res, next) => {
     try {
-        if (req.user.role !== 'admin') {
-            throw new AppError('Không có quyền truy cập', 403);
-        }
-
+        // No role check - allow all authenticated users to view salaries
         const filters = {
             name: req.query.name,
             email: req.query.email,
-            employeeId: req.query.employeeId,
             month: req.query.month,
             minAmount: req.query.minAmount,
             maxAmount: req.query.maxAmount

@@ -18,6 +18,7 @@ import AdminRoute from '../components/AdminRoute';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Layout from '../components/Layout';
 import SalaryManagement from '../components/salary/SalaryManagement';
+import Salary from '../pages/Salary';
 
 const router = createBrowserRouter([
     {
@@ -94,6 +95,14 @@ const router = createBrowserRouter([
             {
                 path: 'projects/:id',
                 element: <ProjectDetail />,
+            },
+            {
+                path: 'salary',
+                element: (
+                    <PrivateRoute>
+                        <Salary />
+                    </PrivateRoute>
+                ),
             },
         ],
     },

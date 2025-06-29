@@ -24,6 +24,7 @@ const Navbar = () => {
     { title: "Dự án", path: "/projects" },
     { title: "Giới thiệu", path: "/about" },
     // { title: "Liên hệ", path: "/contact" },
+    ...(user && !user.isAdmin ? [{ title: "Bảng lương", path: "/salary" }] : []),
   ];
 
   const handleLogout = () => {

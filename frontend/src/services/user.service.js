@@ -75,6 +75,16 @@ const uploadAvatar = async (formData) => {
   }
 };
 
+const getUserSalary = async () => {
+  try {
+    const response = await apiClient.get(ENDPOINTS.SALARY.GET_MY_SALARY);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch salary:', error);
+    throw error;
+  }
+};
+
 const userService = {
   getUsers,
   getUserById,
@@ -82,6 +92,7 @@ const userService = {
   updateUser,
   deleteUser,
   uploadAvatar,
+  getUserSalary,
 };
 
-export { userService };
+export { userService, getUserSalary };
