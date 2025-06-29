@@ -1,22 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Empty, message } from 'antd';
+import { Table, DatePicker, Form, Button, Card, Statistic, Empty, message } from 'antd';
 import moment from 'moment';
-import axios from 'axios';
+import { getMySalary } from '../../services/salary.service';
 
-const UserSalary = () => {
+const UserSalary = ({ email }) => {
     const [salaries, setSalaries] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [totalAmount, setTotalAmount] = useState(0);
+    const [selectedMonth, setSelectedMonth] = useState(null);
 
     useEffect(() => {
-        fetchUserSalary();
-    }, []);
+        fetchSalaryData();
+    }, [email, selectedMonth]);
 
-    const fetchUserSalary = async () => {
+    const fetchSalaryData = async () => {
+        if (!email) return;
+
         try {
             setLoading(true);
-            const response = await axios.get('/api/salary/my-salary');
-            setSalaries(response.data.data);
+            const params = {
+                month: selectedMonth ? moment(selectedMonth).format('YYYY-MM-DD') : undefined
+            };
+            
+            const response = await getMySalary(params);
+            
+            if (response.success) {
+                setSalaries(response.data);
+                // Calculate total amount
+                const total = response.data.reduce((sum, salary) => sum + salary.amount, 0);
+                setTotalAmount(total);
+            }
         } catch (error) {
+            console.error('Error fetching salary data:', error);
             message.error('Lỗi khi tải dữ liệu lương');
         } finally {
             setLoading(false);
@@ -31,7 +46,7 @@ const UserSalary = () => {
             render: (date) => moment(date).format('MM/YYYY')
         },
         {
-            title: 'Tổng tiền',
+            title: 'Lương',
             dataIndex: 'amount',
             key: 'amount',
             render: (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)
@@ -43,31 +58,58 @@ const UserSalary = () => {
         }
     ];
 
-    if (salaries.length === 0 && !loading) {
-        return (
-            <Card className="shadow-sm">
-                <Empty
-                    description="Không có dữ liệu lương"
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                />
-            </Card>
-        );
-    }
-
     return (
-        <Card title="Lịch sử lương của bạn" className="shadow-sm">
-            <Table
-                columns={columns}
-                dataSource={salaries}
-                loading={loading}
-                rowKey="_id"
-                pagination={{
-                    defaultPageSize: 10,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Tổng ${total} bản ghi`
-                }}
-            />
-        </Card>
+        <div>
+            <div className="mb-6">
+                <Card>
+                    <Statistic
+                        title="Tổng thu nhập"
+                        value={totalAmount}
+                        precision={0}
+                        formatter={(value) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)}
+                    />
+                </Card>
+            </div>
+
+            <div className="mb-6">
+                <Form layout="inline">
+                    <Form.Item label="Tháng">
+                        <DatePicker
+                            picker="month"
+                            value={selectedMonth ? moment(selectedMonth) : null}
+                            onChange={(date) => setSelectedMonth(date)}
+                            placeholder="Chọn tháng"
+                        />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" onClick={fetchSalaryData}>
+                            Xem lương
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </div>
+
+            {salaries.length === 0 && !loading ? (
+                <Card className="shadow-sm">
+                    <Empty
+                        description="Không có dữ liệu lương"
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    />
+                </Card>
+            ) : (
+                <Table
+                    columns={columns}
+                    dataSource={salaries}
+                    loading={loading}
+                    rowKey="_id"
+                    pagination={{
+                        defaultPageSize: 5,
+                        showSizeChanger: true,
+                        showTotal: (total) => `Tổng số ${total} bản ghi`
+                    }}
+                />
+            )}
+        </div>
     );
 };
 
