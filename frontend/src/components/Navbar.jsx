@@ -115,12 +115,12 @@ const Navbar = () => {
                 >
                   Đăng nhập
                 </Link>
-                <Link
+                {/* <Link
                   to="/register"
                   className="px-6 py-3 text-base font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
                 >
                   Đăng ký
-                </Link>
+                </Link> */}
               </>
             )}
           </div>

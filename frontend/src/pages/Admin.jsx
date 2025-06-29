@@ -34,7 +34,7 @@ const Admin = () => {
       >
         <nav className="p-4">
           <div className="space-y-2">
-            <a
+            {/* <a
               onClick={() => handleTabChange("dashboard")}
               className={`flex items-center p-3 text-gray-700 hover:bg-blue-50 cursor-pointer rounded-lg ${
                 activeTab === "dashboard"
@@ -44,7 +44,7 @@ const Admin = () => {
             >
               <FaChartLine className="mr-3 text-lg" />
               Bảng điều khiển
-            </a>
+            </a> */}
 
              <a
               onClick={() => handleTabChange("salaries")}
