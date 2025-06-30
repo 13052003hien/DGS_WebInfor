@@ -35,8 +35,8 @@ const Login = () => {
                 role: user.role,
                 timestamp: new Date().toISOString()
             });
-            // If user is admin, redirect to admin dashboard, otherwise go to the previous page or home
-            const redirectTo = user.role === 'admin' ? '/admin' : from;
+            // If user is admin, redirect to user management page, otherwise go to the previous page or home
+            const redirectTo = user.role === 'admin' ? '/admin/users' : from;
             navigate(redirectTo, { replace: true });
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to login. Please check your credentials.');
